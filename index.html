@@ -533,7 +533,7 @@ function calc() {
 	let qlDate = new Date(mfgD.getTime() + qlDays);
 	let qlStr = formatDate(qlDate);
 
-    let cls = "good", emoji = "🟢", msg = "Còn hạn sử dụng tốt";
+    let cls = "good", emoji = "🟢", msg = "Còn HSD tốt";
 
     if (percentLeft < 30) {
         cls = "danger";
@@ -542,7 +542,7 @@ function calc() {
     } else if (percentLeft < 60) {
         cls = "warning";
         emoji = "🟡";
-        msg = "Hạn sử dụng trung bình";
+        msg = "HSD trung bình";
     }
 
     let color =
@@ -557,7 +557,7 @@ function calc() {
 			   <span style="color:#ff6600; font-weight:bold;">${qlStr}</span>
 			</p>
 
-			<p><b>Ngày rút hàng date 20%:</b><br>
+			<p><b>Ngày rút date 20%:</b><br>
                <span style="color:#c0392b; font-weight:bold;">${warnStr}</span>
             </p>
 
