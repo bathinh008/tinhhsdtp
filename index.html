@@ -271,6 +271,28 @@
 			border-radius: 3vw;
 		}
 	}
+	
+	.clear-history-btn {
+		background: #e74c3c;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		padding: 9px 12px;
+		font-size: 14px;
+		cursor: pointer;
+	}
+
+	.clear-history-btn:hover {
+		background: #c0392b;
+	}
+
+	@media (max-width: 480px) {
+		.clear-history-btn {
+			font-size: 4vw;
+			padding: 3vw;
+			border-radius: 2.5vw;
+		}
+	}
 
 </style>
 </head>
@@ -325,7 +347,11 @@
 
 <div id="result"></div>
 
-<h3>Lịch sử gần đây:</h3>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:25px;">
+    <h3 style="margin:0;">Lịch sử gần đây:</h3>
+    <button class="clear-history-btn" onclick="clearHistory()">Xóa lịch sử</button>
+</div>
+
 <div id="history" class="history-box"></div>
 
 <script>
@@ -708,6 +734,13 @@ function toggleHsdMode() {
         dateBox.style.display = "block";
         document.getElementById("bestMonth").value = "";
     }
+}
+
+function clearHistory() {
+    if (!confirm("Bạn có chắc muốn xóa lịch sử gần đây không?")) return;
+
+    localStorage.removeItem("HSD_HISTORY");
+    renderHistory();
 }
 </script>
 
