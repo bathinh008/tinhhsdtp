@@ -348,9 +348,6 @@
 <div id="result"></div>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
 // =============================
 // 1) Phát hiện mobile / PC
 // =============================
@@ -687,6 +684,10 @@ function toggleHsdMode() {
         dateBox.style.display = "block";
         document.getElementById("bestMonth").value = "";
     }
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
 }
 </script>
 
