@@ -347,13 +347,6 @@
 
 <div id="result"></div>
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin-top:25px;">
-    <h3 style="margin:0;">Lịch sử gần đây:</h3>
-    <button class="clear-history-btn" onclick="clearHistory()">Xóa lịch sử</button>
-</div>
-
-<div id="history" class="history-box"></div>
-
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
@@ -539,6 +532,9 @@ function calc() {
     let warnDays = Math.floor(total * 0.8);
     let warnDate = new Date(mfgD.getTime() + warnDays);
     let warnStr = formatDate(warnDate);
+	let qlDays = Math.floor(total * 0.65);
+	let qlDate = new Date(mfgD.getTime() + qlDays);
+	let qlStr = formatDate(qlDate);
 
     let cls = "good", emoji = "🟢", msg = "Còn hạn sử dụng tốt";
 
@@ -560,46 +556,22 @@ function calc() {
             <p><b>Ngày sản xuất:</b> ${mfg}</p>
             <p><b>Hạn sử dụng:</b> ${exp}</p>
 
-            <p><b>Ngày cần rút (còn 20%):</b> 
+            <p><b>Ngày rút hàng date 20%:</b> 
                <span style="color:#c0392b">${warnStr}</span>
             </p>
-
-            <p><b>Còn lại:</b> ${daysLeft} ngày</p>
-
-            <div class="progress-bar">
-                <div class="progress-fill" style="width:${percentUsed}%; background:${color}"></div>
-            </div>
-
-            <p><b>% đã dùng:</b> ${percentUsed}%</p>
-            <p><b>% còn lại:</b> ${percentLeft}%</p>
+			
+			<p><b>Ngày báo date QL 35%:</b> 
+			   <span style="color:#8e44ad">${qlStr}</span>
+			</p>
 
             <p class="${cls}">${emoji} <b>Kết luận:</b> ${msg}</p>
         </div>
     `;
-
-    saveHistory(mfg, exp, msg);
 }
 
 // =============================
-// 8) Lịch sử + reset
+// 8) reset
 // =============================
-function saveHistory(mfg, exp, msg) {
-    let list = JSON.parse(localStorage.getItem("HSD_HISTORY") || "[]");
-
-    list.unshift({
-        mfg,
-        exp,
-        msg,
-        time: new Date().toLocaleString("vi-VN")
-    });
-
-    if (list.length > 3) list.pop();
-
-    localStorage.setItem("HSD_HISTORY", JSON.stringify(list));
-
-    renderHistory(); // 🔥 Quan trọng!!!
-}
-
 function resetAll() {
     const mfgInput = document.getElementById("mfg");
     const expInput = document.getElementById("exp");
@@ -627,25 +599,6 @@ function resetAll() {
     if (box) box.style.display = "none";
 	
 }
-
-function renderHistory() {
-    let list = JSON.parse(localStorage.getItem("HSD_HISTORY") || "[]");
-    let box = document.getElementById("history");
-
-    if (!box) return;
-
-    box.innerHTML = list
-        .map(item => `
-            <div style="margin-bottom:10px;">
-                <b>${item.mfg}</b> → <b>${item.exp}</b><br>
-                <i>${item.msg}</i><br>
-                <small>${item.time}</small>
-                <hr>
-            </div>
-        `)
-        .join("");
-}
-renderHistory();
 
 // =============================
 //  HIỆN / ẨN COMBO BOX TÍNH NGƯỢC
@@ -734,13 +687,6 @@ function toggleHsdMode() {
         dateBox.style.display = "block";
         document.getElementById("bestMonth").value = "";
     }
-}
-
-function clearHistory() {
-    if (!confirm("Bạn có chắc muốn xóa lịch sử gần đây không?")) return;
-
-    localStorage.removeItem("HSD_HISTORY");
-    renderHistory();
 }
 </script>
 
