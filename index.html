@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Tính Hạn Sử Dụng</title>
+<title>Tính Hạn Sử Dụng Cao Cấp</title>
 
 <!-- POPUP CALENDAR -->
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -328,6 +329,9 @@
 <div id="history" class="history-box"></div>
 
 <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 // =============================
 // 1) Phát hiện mobile / PC
 // =============================
