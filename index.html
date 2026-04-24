@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Tính Hạn Sử Dụng Cao Cấp</title>
+
+<!-- POPUP CALENDAR -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 520px;
+        margin: auto;
+        background: #f0f3f8;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 28px;
+    }
+
+    label { 
+        font-weight: bold; 
+        margin-top: 12px; 
+        display: block; 
+        font-size: 18px;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 18px;
+    }
+
+    /* Nút cộng/trừ tháng */
+    .btn-small {
+        padding: 12px 18px;
+        background: #8e44ad;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 6px 0 0;
+        font-size: 16px;
+        min-width: 120px;
+    }
+
+    .btn-small.minus { background: #c0392b; }
+
+    /* Accordion */
+    .acc-header {
+        background: #dfe6e9;
+        padding: 14px;
+        border-radius: 10px;
+        margin-top: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        font-size: 17px;
+    }
+
+    .acc-header:hover { background: #b2bec3; }
+
+    .acc-header .arrow {
+        font-size: 20px;
+        margin-right: 12px;
+        transition: transform 0.25s ease;
+    }
+
+    .acc-header.open .arrow { transform: rotate(90deg); }
+
+    .acc-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+        padding-left: 6px;
+    }
+
+    .acc-body-inner {
+        padding: 12px 0 6px 10px;
+    }
+
+    /* Nút tính toán / làm mới */
+    .btn-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .btn-row button {
+        flex: 1;
+        padding: 16px;
+        font-size: 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .main-btn { background: #3498db; color: white; }
+    .main-btn:hover { background: #217dbb; }
+
+    .refresh-btn { background: #7f8c8d; color: white; }
+    .refresh-btn:hover { background: #636e72; }
+
+    /* Kết quả */
+    .result-box {
+        background: white;
+        border-radius: 14px;
+        padding: 24px;
+        margin-top: 25px;
+        font-size: 18px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 24px;
+        background: #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 14px 0 18px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #27ae60;
+        width: 0%;
+        transition: width 0.35s ease;
+    }
+
+    .danger { color: red; font-weight: bold; }
+    .warning { color: #e67e22; font-weight: bold; }
+    .good { color: #27ae60; font-weight: bold; }
+
+    /* Lịch sử */
+    .history-box {
+        background: white;
+        border-radius: 12px;
+        padding: 14px;
+        margin-top: 25px;
+        font-size: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* ========================== */
+    /* 📱 TỐI ƯU CHO MOBILE */
+    /* ========================== */
+    @media (max-width: 480px) {
+
+		html, body {
+			font-size: 4.5vw;
+			padding: 0;
+			margin: 0;
+		}
+
+		body {
+			padding: 5vw;           /* đều trái – phải */
+			box-sizing: border-box; /* tránh tràn */
+		}
+
+		h2 {
+			font-size: 7vw;
+			margin: 0 0 5vw 0;
+			text-align: center;
+		}
+
+		label {
+			font-size: 5vw;
+			margin: 4vw 0 2vw 0;
+			display: block;
+		}
+
+		input {
+			width: 100%;
+			font-size: 5vw;
+			padding: 4vw;
+			border-radius: 3vw;
+			box-sizing: border-box;
+		}
+
+		/* Nút nhỏ trong accordion */
+		.btn-small {
+			font-size: 4.8vw;
+			padding: 4vw;
+			min-width: 32vw;
+			border-radius: 3vw;
+			margin: 3vw 3vw 0 0;
+		}
+
+		.acc-header {
+			font-size: 5.2vw;
+			padding: 4vw;
+			border-radius: 3vw;
+			margin-top: 4vw;
+			box-sizing: border-box;
+		}
+
+		.acc-header .arrow {
+			font-size: 6vw;
+			margin-right: 3vw;
+		}
+
+		.acc-body-inner {
+			padding: 4vw 0 2vw 3vw;
+		}
+
+		/* Dòng chứa 2 nút tính & làm mới */
+		.btn-row {
+			display: flex;
+			gap: 3vw;
+			margin-top: 5vw;
+		}
+
+		.btn-row button {
+			flex: 1;
+			font-size: 5vw;
+			padding: 5vw 0;
+			border-radius: 3vw;
+			box-sizing: border-box;
+			width: 100%;
+		}
+
+		.result-box {
+			padding: 5vw;
+			font-size: 5vw;
+			margin-top: 6vw;
+			border-radius: 3vw;
+			line-height: 1.55;
+		}
+
+		.progress-bar {
+			height: 7vw;
+			border-radius: 4vw;
+			margin: 4vw 0;
+			width: 100%;
+		}
+
+		.history-box {
+			padding: 4vw;
+			font-size: 4.5vw;
+			border-radius: 3vw;
+			margin-top: 8vw;
+		}
+	}
+	
+	select {
+		width: 100%;
+		padding: 14px;
+		margin-top: 6px;
+		border-radius: 10px;
+		border: 1px solid #ccc;
+		font-size: 18px;
+		background: white;
+	}
+
+	@media (max-width: 480px) {
+		select {
+			font-size: 5vw;
+			padding: 4vw;
+			border-radius: 3vw;
+		}
+	}
+
+</style>
+</head>
+
+<body>
+
+<h2>🧮 Tính Hạn Sử Dụng</h2>
+
+<label>Ngày sản xuất (MFG)</label>
+<input id="mfg" placeholder="dd/mm/yyyy" inputmode="numeric">
+
+<!-- HẠN SỬ DỤNG TỐT NHẤT -->
+<label>Chọn kiểu hạn sử dụng</label>
+<select id="hsdMode" onchange="toggleHsdMode()">
+    <option value="best">Hạn sử dụng tốt nhất</option>
+    <option value="date">Hạn sử dụng cụ thể</option>
+</select>
+
+<div id="bestHsdBox">
+    <label>Hạn sử dụng tốt nhất</label>
+    <input id="bestMonth" type="number" placeholder="Ví dụ: 6 = 6 tháng" inputmode="numeric">
+</div>
+
+<div id="dateHsdBox" style="display:none;">
+    <label>Hạn sử dụng (EXP)</label>
+    <input id="exp" placeholder="dd/mm/yyyy" inputmode="numeric">
+</div>
+
+<!-- COMBO BOX TÍNH NGƯỢC EXP → MFG (ẩn mặc định) -->
+<div id="reverseBox" style="display:none; margin-top: 12px;">
+    <label>Chọn hạn dùng để tính ngược MFG</label>
+    <select id="hsdSelect" onchange="reverseCalcMFG()">
+        <option value="">-- Chọn HSD --</option>
+		<option value="3">3 tháng</option>
+        <option value="6">6 tháng</option>
+		<option value="7">7 tháng</option>
+        <option value="9">9 tháng</option>
+        <option value="12">12 tháng (1 năm)</option>
+        <option value="24">24 tháng (2 năm)</option>
+        <option value="36">36 tháng (3 năm)</option>
+        <option value="48">48 tháng (4 năm)</option>
+        <option value="60">60 tháng (5 năm)</option>
+		<option value="84">84 tháng (7 năm)</option>
+    </select>
+</div>
+
+<!-- NÚT TÍNH + LÀM MỚI -->
+<div class="btn-row">
+    <button class="main-btn" onclick="calc()">Tính Toán</button>
+    <button class="refresh-btn" onclick="resetAll()">Làm mới</button>
+</div>
+
+<div id="result"></div>
+
+<h3>Lịch sử gần đây:</h3>
+<div id="history" class="history-box"></div>
+
+<script>
+// =============================
+// 1) Phát hiện mobile / PC
+// =============================
+const isMobile =
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    window.innerWidth <= 768;
+
+// =============================
+// 2) Hàm auto-format dd/mm/yyyy
+//    dùng cho mobile
+// =============================
+function autoFormatDateInput(el) {
+    if (!el) return;
+
+    el.addEventListener("input", function () {
+        // Lấy toàn bộ số, bỏ ký tự khác
+        let v = el.value.replace(/\D/g, "");
+
+        // Giới hạn 8 số: ddmmyyyy
+        if (v.length > 8) v = v.slice(0, 8);
+
+        let out = "";
+
+        if (v.length <= 2) {
+            // đang gõ ngày
+            out = v;
+        } else if (v.length <= 4) {
+            // ngày + tháng
+            out = v.slice(0, 2) + "/" + v.slice(2);
+        } else {
+            // dd/mm/yyyy
+            out = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
+        }
+
+        el.value = out;
+    });
+}
+
+// =============================
+// 3) Khởi tạo input theo thiết bị
+// =============================
+function enforcePCDateFormat(el, fp) {
+    el.addEventListener("input", function () {
+        let v = el.value.replace(/\D/g, "");
+
+        if (v.length >= 8) {
+            let d = v.slice(0, 2);
+            let m = v.slice(2, 4);
+            let y = v.slice(4, 8);
+
+            let formatted = `${d}/${m}/${y}`;
+            el.value = formatted;
+
+            // Đồng bộ vào flatpickr
+            fp.setDate(formatted, true);
+        }
+    });
+}
+
+if (!isMobile) {
+    // PC dùng popup lịch
+    //flatpickr("#mfg", { dateFormat: "d/m/Y", allowInput: true });
+    //flatpickr("#exp", { dateFormat: "d/m/Y", allowInput: true });
+	const fp1 = flatpickr("#mfg", { dateFormat: "d/m/Y", allowInput: true });
+    const fp2 = flatpickr("#exp", { dateFormat: "d/m/Y", allowInput: true });
+
+    enforcePCDateFormat(document.getElementById("mfg"), fp1);
+    enforcePCDateFormat(document.getElementById("exp"), fp2);
+} else {
+    // Mobile: chỉ dùng auto-format, không popup
+    autoFormatDateInput(document.getElementById("mfg"));
+    autoFormatDateInput(document.getElementById("exp"));
+}
+
+// =============================
+// 4) Accordion
+// =============================
+function toggleAcc(id) {
+    const body = document.getElementById(id);
+    const header = body.previousElementSibling;
+
+    if (body.style.maxHeight) {
+        body.style.maxHeight = null;
+        header.classList.remove("open");
+    } else {
+        body.style.maxHeight = body.scrollHeight + "px";
+        header.classList.add("open");
+    }
+}
+
+// =============================
+// 5) Xử lý ngày
+// =============================
+function parseDMY(str) {
+    const [d, m, y] = str.split("/");
+    return new Date(y, m - 1, d);
+}
+
+function formatDate(d) {
+    return (
+        String(d.getDate()).padStart(2, "0") +
+        "/" +
+        String(d.getMonth() + 1).padStart(2, "0") +
+        "/" +
+        d.getFullYear()
+    );
+}
+
+// =============================
+// 6) Cộng / Trừ tháng
+// =============================
+function addMonths(months) {
+    let mfg = document.getElementById("mfg").value;
+    let exp = document.getElementById("exp").value;
+    if (!mfg) return alert("Vui lòng nhập ngày sản xuất trước!");
+
+    let base = exp ? parseDMY(exp) : parseDMY(mfg);
+    base.setMonth(base.getMonth() + months);
+
+    let max = parseDMY(mfg);
+    max.setFullYear(max.getFullYear() + 20);
+
+    let min = parseDMY(mfg);
+
+    if (base > max) base = max;
+    if (base < min) base = min;
+
+    document.getElementById("exp").value = formatDate(base);
+}
+
+// =============================
+// 7) Tính HSD
+// =============================
+function calc() {
+    let mfg = document.getElementById("mfg").value;
+    let mode = document.getElementById("hsdMode").value;
+
+    if (!mfg) return alert("Vui lòng nhập ngày sản xuất!");
+
+    const mfgD = parseDMY(mfg);
+    let expD;
+
+    if (mode === "best") {
+        let months = parseInt(document.getElementById("bestMonth").value);
+
+        if (!months || months <= 0) {
+            return alert("Vui lòng nhập hạn sử dụng tốt nhất bằng số tháng!");
+        }
+
+        expD = new Date(mfgD);
+        expD.setMonth(expD.getMonth() + months);
+
+    } else {
+        let exp = document.getElementById("exp").value;
+
+        if (!exp) return alert("Vui lòng nhập hạn sử dụng cụ thể!");
+
+        expD = parseDMY(exp);
+    }
+
+    const exp = formatDate(expD);
+    const now = new Date();
+
+    if (now < mfgD)
+        return document.getElementById("result").innerHTML =
+            `<div class='result-box warning'>❗ Chưa đến ngày sản xuất!</div>`;
+
+    if (now > expD)
+        return document.getElementById("result").innerHTML =
+            `<div class='result-box danger'>❌ ĐÃ HẾT HẠN!</div>`;
+
+    let total = expD - mfgD;
+    let used = now - mfgD;
+
+    let percentUsed = (used / total * 100).toFixed(2);
+    let percentLeft = (100 - percentUsed).toFixed(2);
+    let daysLeft = Math.ceil((expD - now) / 86400000);
+
+    let warnDays = Math.floor(total * 0.8);
+    let warnDate = new Date(mfgD.getTime() + warnDays);
+    let warnStr = formatDate(warnDate);
+
+    let cls = "good", emoji = "🟢", msg = "Còn hạn sử dụng tốt";
+
+    if (percentLeft < 30) {
+        cls = "danger";
+        emoji = "🔴";
+        msg = "Sắp hết hạn!";
+    } else if (percentLeft < 60) {
+        cls = "warning";
+        emoji = "🟡";
+        msg = "Hạn sử dụng trung bình";
+    }
+
+    let color =
+        cls === "danger" ? "red" : cls === "warning" ? "#e67e22" : "#27ae60";
+
+    document.getElementById("result").innerHTML = `
+        <div class="result-box">
+            <p><b>Ngày sản xuất:</b> ${mfg}</p>
+            <p><b>Hạn sử dụng:</b> ${exp}</p>
+
+            <p><b>Ngày cần rút (còn 20%):</b> 
+               <span style="color:#c0392b">${warnStr}</span>
+            </p>
+
+            <p><b>Còn lại:</b> ${daysLeft} ngày</p>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:${percentUsed}%; background:${color}"></div>
+            </div>
+
+            <p><b>% đã dùng:</b> ${percentUsed}%</p>
+            <p><b>% còn lại:</b> ${percentLeft}%</p>
+
+            <p class="${cls}">${emoji} <b>Kết luận:</b> ${msg}</p>
+        </div>
+    `;
+
+    saveHistory(mfg, exp, msg);
+}
+
+// =============================
+// 8) Lịch sử + reset
+// =============================
+function saveHistory(mfg, exp, msg) {
+    let list = JSON.parse(localStorage.getItem("HSD_HISTORY") || "[]");
+
+    list.unshift({
+        mfg,
+        exp,
+        msg,
+        time: new Date().toLocaleString("vi-VN")
+    });
+
+    if (list.length > 3) list.pop();
+
+    localStorage.setItem("HSD_HISTORY", JSON.stringify(list));
+
+    renderHistory(); // 🔥 Quan trọng!!!
+}
+
+function resetAll() {
+    const mfgInput = document.getElementById("mfg");
+    const expInput = document.getElementById("exp");
+	
+	document.getElementById("bestMonth").value = "";
+	document.getElementById("hsdMode").value = "best";
+	toggleHsdMode();
+
+    // Xóa nội dung ô
+    mfgInput.value = "";
+    expInput.value = "";
+
+    // Bỏ readonly để nhập lại
+    mfgInput.readOnly = false;
+
+    // Xóa kết quả
+    document.getElementById("result").innerHTML = "";
+
+    // Reset select box tính ngược
+    const hs = document.getElementById("hsdSelect");
+    if (hs) hs.value = "";
+
+    // Ẩn lại combo box
+    const box = document.getElementById("reverseBox");
+    if (box) box.style.display = "none";
+	
+}
+
+function renderHistory() {
+    let list = JSON.parse(localStorage.getItem("HSD_HISTORY") || "[]");
+    let box = document.getElementById("history");
+
+    if (!box) return;
+
+    box.innerHTML = list
+        .map(item => `
+            <div style="margin-bottom:10px;">
+                <b>${item.mfg}</b> → <b>${item.exp}</b><br>
+                <i>${item.msg}</i><br>
+                <small>${item.time}</small>
+                <hr>
+            </div>
+        `)
+        .join("");
+}
+renderHistory();
+
+// =============================
+//  HIỆN / ẨN COMBO BOX TÍNH NGƯỢC
+// =============================
+function updateReverseBox() {
+    const mfg = document.getElementById("mfg").value.trim();
+    const exp = document.getElementById("exp").value.trim();
+    const box = document.getElementById("reverseBox");
+
+    // Điều kiện hiển thị:
+    // EXP đã nhập + MFG đang trống
+    if (exp !== "" && mfg === "") {
+        box.style.display = "block";
+    } else {
+        box.style.display = "none";
+    }
+}
+
+// Theo dõi 2 ô input
+document.getElementById("mfg").addEventListener("input", updateReverseBox);
+document.getElementById("exp").addEventListener("input", updateReverseBox);
+
+
+// =============================
+//  TÍNH NGƯỢC EXP → MFG
+// =============================
+function reverseCalcMFG() {
+    let exp = document.getElementById("exp").value;
+    let hsd = document.getElementById("hsdSelect").value;
+
+    if (!exp) {
+        alert("Vui lòng nhập hạn sử dụng trước!");
+        document.getElementById("hsdSelect").value = "";
+        return;
+    }
+
+    if (!hsd) return;
+
+    let expDate = parseDMY(exp);
+    let newMFG = new Date(expDate);
+
+    newMFG.setMonth(newMFG.getMonth() - parseInt(hsd));
+
+    // Cập nhật MFG
+    const mfgInput = document.getElementById("mfg");
+    mfgInput.value = formatDate(newMFG);
+
+    // KHÓA ô MFG theo yêu cầu
+    mfgInput.readOnly = true;
+
+    // Ẩn lại combo box
+    document.getElementById("reverseBox").style.display = "none";
+}
+
+function applyBestMonth() {
+    let mfg = document.getElementById("mfg").value;
+    let months = parseInt(document.getElementById("bestMonth").value);
+
+    if (!mfg) {
+        alert("Vui lòng nhập ngày sản xuất trước!");
+        return;
+    }
+
+    if (!months || months <= 0) {
+        alert("Vui lòng nhập số tháng hợp lệ!");
+        return;
+    }
+
+    let base = parseDMY(mfg);
+    base.setMonth(base.getMonth() + months);
+
+    document.getElementById("exp").value = formatDate(base);
+}
+
+function toggleHsdMode() {
+    const mode = document.getElementById("hsdMode").value;
+    const bestBox = document.getElementById("bestHsdBox");
+    const dateBox = document.getElementById("dateHsdBox");
+
+    if (mode === "best") {
+        bestBox.style.display = "block";
+        dateBox.style.display = "none";
+        document.getElementById("exp").value = "";
+    } else {
+        bestBox.style.display = "none";
+        dateBox.style.display = "block";
+        document.getElementById("bestMonth").value = "";
+    }
+}
+</script>
+
+</body>
+</html>
