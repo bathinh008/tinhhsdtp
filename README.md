@@ -22,11 +22,13 @@ Nhập ngày sản xuất
 Chọn kiểu hạn sử dụng
 Nhấn Tính Toán
 Xem kết quả ngay lập tức
+
 🛠️ Công nghệ sử dụng
 HTML / CSS / JavaScript thuần
 Flatpickr (chọn ngày)
 LocalStorage (lưu tạm)
 Service Worker (PWA)
+
 📦 Cài đặt & sử dụng
 1. Clone project
 git clone https://github.com/your-username/hsd-calculator.git
