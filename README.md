@@ -34,7 +34,7 @@ Service Worker (PWA)
    
    git clone https://github.com/bathinh008/tinhhsdtp.git
    
-   cd hsd-calculator
+   cd tinhhsdtp
 
 3. Chạy local
 
