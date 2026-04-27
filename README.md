@@ -47,9 +47,13 @@ Mở bằng Chrome
 Bấm ⋮
 Chọn Thêm vào màn hình chính hoặc Cài đặt ứng dụng
 📁 Cấu trúc project
+
 ├── index.html
+
 ├── manifest.json
+
 ├── sw.js
+
 ├── icon.png
 
 ⚙️ Cách hoạt động
