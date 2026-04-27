@@ -31,9 +31,10 @@ Service Worker (PWA)
 
 📦 Cài đặt & sử dụng
 1. Clone project
-git clone https://github.com/bathinh008/tinhhsdtp.git
-
-cd hsd-calculator
+   
+   git clone https://github.com/bathinh008/tinhhsdtp.git
+   
+   cd hsd-calculator
 
 3. Chạy local
 
