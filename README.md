@@ -40,11 +40,12 @@ Service Worker (PWA)
 
 Bạn có thể mở trực tiếp:
 
-index.html
+   index.html
 
 Hoặc dùng server:
 
-npx serve
+   npx server
+
 3. Cài trên Android (PWA)
 Mở bằng Chrome
 Bấm ⋮
@@ -80,13 +81,13 @@ Không để trống ngày sản xuất
 Số tháng phải > 0
 Không hỗ trợ password (khuyến nghị dùng AppLock nếu cần)
 
-💡 Use case
+💡 Đối tượng sử dụng
 Nhân viên siêu thị kiểm tra hạn
 Quản lý kho hàng
 Kiểm soát hàng FMCG
 Báo cáo hàng cận date
 
-🔥 Roadmap (có thể nâng cấp)
+🔥 Gợi ý phát triển (có thể nâng cấp)
  Xuất file báo cáo
  Thêm barcode scan
  Đồng bộ dữ liệu
@@ -96,10 +97,6 @@ Báo cáo hàng cận date
 👨‍💻 Tác giả
 
 Được phát triển bởi: Phương Thịnh
-
-📄 License
-
-MIT License
 
 ⭐ Đóng góp
 
