@@ -92,7 +92,7 @@ Báo cáo hàng cận date
  
 👨‍💻 Tác giả
 
-Developed by: Phương Thịnh
+Được phát triển bởi: Phương Thịnh
 
 📄 License
 
