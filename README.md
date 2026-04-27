@@ -51,11 +51,13 @@ Chọn Thêm vào màn hình chính hoặc Cài đặt ứng dụng
 ├── manifest.json
 ├── sw.js
 ├── icon.png
+
 ⚙️ Cách hoạt động
 Nếu chọn Hạn sử dụng tốt nhất:
 EXP = MFG + số tháng
 Nếu chọn Hạn sử dụng cụ thể:
 Dùng trực tiếp ngày EXP nhập vào
+
 📊 Công thức tính
 Tổng thời gian = EXP - MFG
 % đã dùng = (hiện tại - MFG) / tổng
@@ -64,22 +66,26 @@ Ngày rút hàng (20%):
 = MFG + 80% thời gian
 Ngày báo QL (35%):
 = MFG + 65% thời gian
+
 ⚠️ Lưu ý
 Nhập đúng định dạng: dd/mm/yyyy
 Không để trống ngày sản xuất
 Số tháng phải > 0
 Không hỗ trợ password (khuyến nghị dùng AppLock nếu cần)
+
 💡 Use case
 Nhân viên siêu thị kiểm tra hạn
 Quản lý kho hàng
 Kiểm soát hàng FMCG
 Báo cáo hàng cận date
+
 🔥 Roadmap (có thể nâng cấp)
  Xuất file báo cáo
  Thêm barcode scan
  Đồng bộ dữ liệu
  App Android (APK)
  Thống kê hàng tồn
+ 
 👨‍💻 Tác giả
 
 Developed by: Phương Thịnh
