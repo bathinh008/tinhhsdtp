@@ -563,7 +563,12 @@ function calc() {
             <p><b>1. Ngày sản xuất:</b> ${mfg}</p>
             <p><b>2. Hạn sử dụng:</b> ${exp}</p>
 
-            <p class="${cls}"><b>3. Kết luận:</b> ${emoji} ${msg}</p>
+			<p>
+				<b>3. Kết luận:</b>
+				<span class="${cls}">
+					${emoji} ${msg}
+				</span>
+			</p>
 
             <p><b>- Date hiện tại:</b>
                <span style="color:#27ae60; font-weight:bold; font-size:1.25em;">${percentLeft}%</span>
