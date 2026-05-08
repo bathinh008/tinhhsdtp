@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Tính Hạn Sử Dụng</title>
+<title>Tính Hạn Sử Dụng Cao Cấp</title>
 
 <!-- POPUP CALENDAR -->
 <link rel="manifest" href="manifest.json">
@@ -523,45 +523,63 @@ function calc() {
     let used = now - mfgD;
 
     let percentUsed = (used / total * 100).toFixed(2);
-    let percentLeft = (100 - percentUsed).toFixed(2);
+    let percentLeft = (100 - percentUsed).toFixed(0);
     let daysLeft = Math.ceil((expD - now) / 86400000);
 
-    let warnDays = Math.floor(total * 0.8);
-    let warnDate = new Date(mfgD.getTime() + warnDays);
-    let warnStr = formatDate(warnDate);
-	let qlDays = Math.floor(total * 0.65);
-	let qlDate = new Date(mfgD.getTime() + qlDays);
-	let qlStr = formatDate(qlDate);
+    // Các mốc tính theo % DATE CÒN LẠI
+    // Kho 50%  = đã dùng 50% tổng HSD
+    // QL 35%   = đã dùng 65% tổng HSD
+    // Rút 20%  = đã dùng 80% tổng HSD
+    let khoDays = Math.floor(total * 0.5);
+    let khoDate = new Date(mfgD.getTime() + khoDays);
+    let khoStr = formatDate(khoDate);
+
+    let qlDays = Math.floor(total * 0.65);
+    let qlDate = new Date(mfgD.getTime() + qlDays);
+    let qlStr = formatDate(qlDate);
+
+    let rutDays = Math.floor(total * 0.8);
+    let rutDate = new Date(mfgD.getTime() + rutDays);
+    let rutStr = formatDate(rutDate);
 
     let cls = "good", emoji = "🟢", msg = "Còn HSD tốt";
 
-    if (percentLeft < 30) {
+    if (percentLeft <= 20) {
         cls = "danger";
         emoji = "🔴";
-        msg = "Sắp hết hạn!";
-    } else if (percentLeft < 60) {
+        msg = "Đến mốc rút date / cần xử lý ngay";
+    } else if (percentLeft <= 35) {
+        cls = "warning";
+        emoji = "🟠";
+        msg = "Đến mốc báo date QL 35%";
+    } else if (percentLeft <= 50) {
         cls = "warning";
         emoji = "🟡";
-        msg = "HSD trung bình";
+        msg = "Đến mốc Date Kho 50%";
     }
-
-    let color =
-        cls === "danger" ? "red" : cls === "warning" ? "#e67e22" : "#27ae60";
 
     document.getElementById("result").innerHTML = `
         <div class="result-box">
-            <p><b>Ngày sản xuất:</b> ${mfg}</p>
-            <p><b>Hạn sử dụng:</b> ${exp}</p>
+            <p><b>1. Ngày sản xuất:</b> ${mfg}</p>
+            <p><b>2. Hạn sử dụng:</b> ${exp}</p>
 
-			<p><b>Ngày báo date QL 35%:</b><br>
-			   <span style="color:#ff6600; font-weight:bold;">${qlStr}</span>
-			</p>
+            <p class="${cls}"><b>3. Kết luận:</b> ${emoji} ${msg}</p>
 
-			<p><b>Ngày rút date 20%:</b><br>
-               <span style="color:#c0392b; font-weight:bold;">${warnStr}</span>
+            <p><b>- Date hiện tại:</b>
+               <span style="color:#27ae60; font-weight:bold; font-size:1.25em;">${percentLeft}%</span>
             </p>
 
-            <p class="${cls}">${emoji} <b>Kết luận:</b> ${msg}</p>
+            <p><b>- Date Kho 50%:</b>
+               <span style="color:#2980b9; font-weight:bold; font-size:1.15em;">${khoStr}</span>
+            </p>
+
+            <p><b>- Date QL 35%:</b>
+               <span style="color:#ff6600; font-weight:bold; font-size:1.15em;">${qlStr}</span>
+            </p>
+
+            <p><b>- Date rút 20%:</b>
+               <span style="color:#c0392b; font-weight:bold; font-size:1.15em;">${rutStr}</span>
+            </p>
         </div>
     `;
 }
