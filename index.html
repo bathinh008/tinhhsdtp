@@ -304,6 +304,9 @@
 <label>Ngày sản xuất (MFG)</label>
 <input id="mfg" placeholder="dd/mm/yyyy" inputmode="numeric">
 
+<label>Đọc date từ hình ảnh</label>
+<input type="file" id="aiImageInput" accept="image/*" capture="environment">
+
 <!-- HẠN SỬ DỤNG TỐT NHẤT -->
 <label>Chọn kiểu hạn sử dụng</label>
 <select id="hsdMode" onchange="toggleHsdMode()">
@@ -348,6 +351,9 @@
 <div id="result"></div>
 
 <script>
+const SUPABASE_FUNCTION_URL = "https://gpmuckoydhrokpioltem.supabase.co/functions/v1/scan-date";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbXVja295ZGhyb2twaW9sdGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MTMzNTcsImV4cCI6MjA4MTI4OTM1N30.Fqe5U2hm_fERI6ZLc_FQ1SMh5F4sYOrxr8JqLlwLKI0";
+
 // =============================
 // 1) Phát hiện mobile / PC
 // =============================
@@ -707,6 +713,60 @@ function toggleHsdMode() {
         dateBox.style.display = "block";
         document.getElementById("bestMonth").value = "";
     }
+}
+
+document.getElementById("aiImageInput").addEventListener("change", async function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+        document.getElementById("result").innerHTML =
+            `<div class="result-box"> Trình đọc ảnh đang đọc NSX/HSD...</div>`;
+
+        const imageBase64 = await fileToBase64(file);
+
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+				"apikey": SUPABASE_ANON_KEY,
+				"Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({ imageBase64 })
+        });
+
+        const data = await res.json();
+
+        if (data.mfg) {
+            document.getElementById("mfg").value = data.mfg;
+        }
+
+        if (data.exp) {
+            document.getElementById("exp").value = data.exp;
+            document.getElementById("hsdMode").value = "date";
+            toggleHsdMode();
+        }
+
+        if (data.mfg || data.exp) {
+            calc();
+        } else {
+            document.getElementById("result").innerHTML =
+                `<div class="result-box warning">⚠️ Trình đọc ảnh chưa đọc được date rõ ràng.<br>${data.note || ""}</div>`;
+        }
+
+    } catch (err) {
+        document.getElementById("result").innerHTML =
+            `<div class="result-box danger">❌ Lỗi Trình đọc ảnh: ${err.message}</div>`;
+    }
+});
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 if ('serviceWorker' in navigator) {
