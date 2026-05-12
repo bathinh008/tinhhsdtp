@@ -745,6 +745,88 @@ function toggleHsdMode() {
     }
 }
 
+
+// =============================
+// 9) Hỗ trợ AI đọc ảnh: nếu chỉ có NSX thì hỏi/chọn HSD
+// =============================
+function calcExpFromMfgAndMonths(mfg, months) {
+    const mfgDate = parseDMY(mfg);
+    const expDate = new Date(mfgDate);
+    expDate.setMonth(expDate.getMonth() + parseInt(months));
+    return formatDate(expDate);
+}
+
+function applyAiShelfLife(months) {
+    const mfg = document.getElementById("mfg").value.trim();
+
+    if (!mfg) {
+        document.getElementById("result").innerHTML =
+            `<div class="result-box danger">❌ Chưa có ngày sản xuất để tính HSD.</div>`;
+        return;
+    }
+
+    if (!months || parseInt(months) <= 0) {
+        document.getElementById("result").innerHTML =
+            `<div class="result-box warning">⚠️ Vui lòng chọn hạn sử dụng hợp lệ.</div>`;
+        return;
+    }
+
+    const exp = calcExpFromMfgAndMonths(mfg, months);
+
+    document.getElementById("exp").value = exp;
+    document.getElementById("hsdMode").value = "date";
+    toggleHsdMode();
+
+    calc();
+}
+
+function showAskHsdAfterAI(mfg, note = "") {
+    document.getElementById("hsdMode").value = "date";
+    toggleHsdMode();
+
+    document.getElementById("result").innerHTML = `
+        <div class="result-box warning">
+            <p><b>Đã đọc được ngày sản xuất:</b>
+                <span style="color:#2980b9;font-weight:bold;">${mfg}</span>
+            </p>
+
+            <p>⚠️ Chưa đọc được hạn sử dụng cụ thể hoặc hạn dùng theo tháng/năm.</p>
+
+            ${note ? `<p><b>Ghi chú:</b> ${note}</p>` : ""}
+
+            <label style="margin-top:14px;">Chọn hạn sử dụng để tự tính</label>
+            <select id="aiShelfLifeSelect">
+                <option value="">-- Chọn HSD --</option>
+                <option value="3">3 tháng</option>
+                <option value="6">6 tháng</option>
+                <option value="7">7 tháng</option>
+                <option value="9">9 tháng</option>
+                <option value="12">12 tháng / 1 năm</option>
+                <option value="18">18 tháng</option>
+                <option value="24">24 tháng / 2 năm</option>
+                <option value="36">36 tháng / 3 năm</option>
+                <option value="48">48 tháng / 4 năm</option>
+                <option value="60">60 tháng / 5 năm</option>
+                <option value="84">84 tháng / 7 năm</option>
+            </select>
+
+            <button class="main-btn"
+                style="width:100%;margin-top:14px;padding:14px;border-radius:10px;border:none;font-size:17px;"
+                onclick="applyAiShelfLife(document.getElementById('aiShelfLifeSelect').value)">
+                Tính HSD theo hạn đã chọn
+            </button>
+        </div>
+    `;
+}
+
+function showAiReadError(message) {
+    document.getElementById("result").innerHTML =
+        `<div class="result-box warning">
+            ⚠️ Trình đọc ảnh chưa đủ dữ liệu để tính.<br>
+            ${message || "Vui lòng nhập thêm NSX/HSD hoặc chọn hạn dùng theo tháng."}
+        </div>`;
+}
+
 document.getElementById("aiImageInput").addEventListener("change", async function (e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -772,32 +854,42 @@ document.getElementById("aiImageInput").addEventListener("change", async functio
 
         const data = await res.json();
 
-        if (data.mfg) {
-            document.getElementById("mfg").value = data.mfg;
+        const mfg = data.mfg || null;
+        const exp = data.exp || null;
+        const shelfLifeMonths = data.shelfLifeMonths || null;
+
+        if (mfg) {
+            document.getElementById("mfg").value = mfg;
         }
 
-		if (data.mfg && !data.exp && data.shelfLifeMonths) {
-			const mfgDate = parseDMY(data.mfg);
-			const expDate = new Date(mfgDate);
-			expDate.setMonth(expDate.getMonth() + parseInt(data.shelfLifeMonths));
-
-			document.getElementById("exp").value = formatDate(expDate);
-			document.getElementById("hsdMode").value = "date";
-			toggleHsdMode();
-		}
-
-        if (data.exp) {
-            document.getElementById("exp").value = data.exp;
+        // Nếu đọc được HSD cụ thể thì chuyển sang chế độ HSD cụ thể rồi tính
+        if (exp) {
+            document.getElementById("exp").value = exp;
             document.getElementById("hsdMode").value = "date";
             toggleHsdMode();
+            calc();
+            return;
         }
 
-        if (data.mfg || data.exp) {
+        // Nếu đọc được NSX + hạn dùng theo tháng/năm thì tự tính HSD
+        if (mfg && shelfLifeMonths) {
+            const calculatedExp = calcExpFromMfgAndMonths(mfg, shelfLifeMonths);
+
+            document.getElementById("exp").value = calculatedExp;
+            document.getElementById("hsdMode").value = "date";
+            toggleHsdMode();
+
             calc();
-        } else {
-            document.getElementById("result").innerHTML =
-                `<div class="result-box warning">⚠️ Trình đọc ảnh chưa đọc được date rõ ràng.<br>${data.note || ""}</div>`;
+            return;
         }
+
+        // Nếu chỉ đọc được NSX thì không gọi calc() để tránh lỗi/vòng lặp
+        if (mfg && !exp && !shelfLifeMonths) {
+            showAskHsdAfterAI(mfg, data.note || "");
+            return;
+        }
+
+        showAiReadError(data.note || "AI chưa đọc được NSX/HSD rõ ràng.");
 
     } catch (err) {
         document.getElementById("result").innerHTML =
