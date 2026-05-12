@@ -862,6 +862,18 @@ document.getElementById("aiImageInput").addEventListener("change", async functio
             document.getElementById("mfg").value = mfg;
         }
 
+		// kiểm tra hạn sử dụng có bất thường không?
+		if (isSuspiciousDate(data.mfg) || isSuspiciousDate(data.exp)) {
+			document.getElementById("result").innerHTML =
+				`<div class="result-box warning">
+					⚠️ Đọc date có dấu hiệu không chính xác.<br>
+					NSX: ${data.mfg || "Không rõ"}<br>
+					HSD: ${data.exp || "Không rõ"}<br><br>
+					Vui lòng kiểm tra lại ảnh hoặc nhập tay.
+				</div>`;
+			return;
+		}
+
         // Nếu đọc được HSD cụ thể thì chuyển sang chế độ HSD cụ thể rồi tính
         if (exp) {
             document.getElementById("exp").value = exp;
@@ -921,9 +933,15 @@ function resizeImageToBase64(file, maxWidth = 1280, quality = 0.72) {
 
             const ctx = canvas.getContext("2d");
 
-            ctx.drawImage(img, 0, 0, width, height);
+			// tăng độ rõ chữ trước khi gửi AI
+			ctx.filter = "grayscale(100%) contrast(180%) brightness(115%)";
 
-            const base64 = canvas.toDataURL("image/jpeg", quality);
+			ctx.drawImage(img, 0, 0, width, height);
+
+			// reset filter
+			ctx.filter = "none";
+
+			const base64 = canvas.toDataURL("image/jpeg", quality);
 
             resolve(base64);
         };
@@ -933,6 +951,17 @@ function resizeImageToBase64(file, maxWidth = 1280, quality = 0.72) {
 
         reader.readAsDataURL(file);
     });
+}
+
+function isSuspiciousDate(dmy) {
+    if (!dmy) return true;
+
+    const y = parseInt(dmy.split("/")[2]);
+
+    // App dùng kiểm date hàng hiện tại, năm quá cũ thì cảnh báo
+    if (y < 2020 || y > 2040) return true;
+
+    return false;
 }
 
 if ('serviceWorker' in navigator) {
