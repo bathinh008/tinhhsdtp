@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Tính Hạn Sử Dụng</title>
+<title>Tính Hạn Sử Dụng Cao Cấp</title>
 
 <!-- POPUP CALENDAR -->
 <link rel="manifest" href="manifest.json">
@@ -294,33 +294,6 @@
 		}
 	}
 
-
-.loading-wrap{
-    text-align:center;
-    padding:25px 10px;
-}
-
-.loading-spinner{
-    width:60px;
-    height:60px;
-    border:6px solid #dfe6e9;
-    border-top:6px solid #3498db;
-    border-radius:50%;
-    margin:0 auto 18px auto;
-    animation:spin 1s linear infinite;
-}
-
-.loading-text{
-    font-size:18px;
-    font-weight:bold;
-    color:#2c3e50;
-}
-
-@keyframes spin{
-    0%{ transform:rotate(0deg); }
-    100%{ transform:rotate(360deg); }
-}
-
 </style>
 </head>
 
@@ -330,9 +303,6 @@
 
 <label>Ngày sản xuất (MFG)</label>
 <input id="mfg" placeholder="dd/mm/yyyy" inputmode="numeric">
-
-<label>Đọc date từ hình ảnh</label>
-<input type="file" id="aiImageInput" accept="image/*" capture="environment">
 
 <!-- HẠN SỬ DỤNG TỐT NHẤT -->
 <label>Chọn kiểu hạn sử dụng</label>
@@ -378,9 +348,6 @@
 <div id="result"></div>
 
 <script>
-const SUPABASE_FUNCTION_URL = "https://gpmuckoydhrokpioltem.supabase.co/functions/v1/scan-date";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwbXVja295ZGhyb2twaW9sdGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MTMzNTcsImV4cCI6MjA4MTI4OTM1N30.Fqe5U2hm_fERI6ZLc_FQ1SMh5F4sYOrxr8JqLlwLKI0";
-
 // =============================
 // 1) Phát hiện mobile / PC
 // =============================
@@ -643,9 +610,6 @@ function resetAll() {
     // Xóa kết quả
     document.getElementById("result").innerHTML = "";
 
-    // Reset ảnh đã chọn
-    document.getElementById("aiImageInput").value = "";
-
     // Reset select box tính ngược
     const hs = document.getElementById("hsdSelect");
     if (hs) hs.value = "";
@@ -743,225 +707,6 @@ function toggleHsdMode() {
         dateBox.style.display = "block";
         document.getElementById("bestMonth").value = "";
     }
-}
-
-
-// =============================
-// 9) Hỗ trợ AI đọc ảnh: nếu chỉ có NSX thì hỏi/chọn HSD
-// =============================
-function calcExpFromMfgAndMonths(mfg, months) {
-    const mfgDate = parseDMY(mfg);
-    const expDate = new Date(mfgDate);
-    expDate.setMonth(expDate.getMonth() + parseInt(months));
-    return formatDate(expDate);
-}
-
-function applyAiShelfLife(months) {
-    const mfg = document.getElementById("mfg").value.trim();
-
-    if (!mfg) {
-        document.getElementById("result").innerHTML =
-            `<div class="result-box danger">❌ Chưa có ngày sản xuất để tính HSD.</div>`;
-        return;
-    }
-
-    if (!months || parseInt(months) <= 0) {
-        document.getElementById("result").innerHTML =
-            `<div class="result-box warning">⚠️ Vui lòng chọn hạn sử dụng hợp lệ.</div>`;
-        return;
-    }
-
-    const exp = calcExpFromMfgAndMonths(mfg, months);
-
-    document.getElementById("exp").value = exp;
-    document.getElementById("hsdMode").value = "date";
-    toggleHsdMode();
-
-    calc();
-}
-
-function showAskHsdAfterAI(mfg, note = "") {
-    document.getElementById("hsdMode").value = "date";
-    toggleHsdMode();
-
-    document.getElementById("result").innerHTML = `
-        <div class="result-box warning">
-            <p><b>Đã đọc được ngày sản xuất:</b>
-                <span style="color:#2980b9;font-weight:bold;">${mfg}</span>
-            </p>
-
-            <p>⚠️ Chưa đọc được hạn sử dụng cụ thể hoặc hạn dùng theo tháng/năm.</p>
-
-            ${note ? `<p><b>Ghi chú:</b> ${note}</p>` : ""}
-
-            <label style="margin-top:14px;">Chọn hạn sử dụng để tự tính</label>
-            <select id="aiShelfLifeSelect">
-                <option value="">-- Chọn HSD --</option>
-                <option value="3">3 tháng</option>
-                <option value="6">6 tháng</option>
-                <option value="7">7 tháng</option>
-                <option value="9">9 tháng</option>
-                <option value="12">12 tháng / 1 năm</option>
-                <option value="18">18 tháng</option>
-                <option value="24">24 tháng / 2 năm</option>
-                <option value="36">36 tháng / 3 năm</option>
-                <option value="48">48 tháng / 4 năm</option>
-                <option value="60">60 tháng / 5 năm</option>
-                <option value="84">84 tháng / 7 năm</option>
-            </select>
-
-            <button class="main-btn"
-                style="width:100%;margin-top:14px;padding:14px;border-radius:10px;border:none;font-size:17px;"
-                onclick="applyAiShelfLife(document.getElementById('aiShelfLifeSelect').value)">
-                Tính HSD theo hạn đã chọn
-            </button>
-        </div>
-    `;
-}
-
-function showAiReadError(message) {
-    document.getElementById("result").innerHTML =
-        `<div class="result-box warning">
-            ⚠️ Trình đọc ảnh chưa đủ dữ liệu để tính.<br>
-            ${message || "Vui lòng nhập thêm NSX/HSD hoặc chọn hạn dùng theo tháng."}
-        </div>`;
-}
-
-document.getElementById("aiImageInput").addEventListener("change", async function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    try {
-        document.getElementById("result").innerHTML =
-            `<div class="result-box loading-wrap">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">
-                    Đang đọc NSX / HSD...
-                </div>
-            </div>`;
-
-        const imageBase64 = await resizeImageToBase64(file, 1280, 0.72);
-
-        const res = await fetch(SUPABASE_FUNCTION_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-				"apikey": SUPABASE_ANON_KEY,
-				"Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({ imageBase64 })
-        });
-
-        const data = await res.json();
-
-        const mfg = data.mfg || null;
-        const exp = data.exp || null;
-        const shelfLifeMonths = data.shelfLifeMonths || null;
-
-        if (mfg) {
-            document.getElementById("mfg").value = mfg;
-        }
-
-		// kiểm tra hạn sử dụng có bất thường không?
-		if (isSuspiciousDate(data.mfg) || isSuspiciousDate(data.exp)) {
-			document.getElementById("result").innerHTML =
-				`<div class="result-box warning">
-					⚠️ Đọc date có dấu hiệu không chính xác.<br>
-					NSX: ${data.mfg || "Không rõ"}<br>
-					HSD: ${data.exp || "Không rõ"}<br><br>
-					Vui lòng kiểm tra lại ảnh hoặc nhập tay.
-				</div>`;
-			return;
-		}
-
-        // Nếu đọc được HSD cụ thể thì chuyển sang chế độ HSD cụ thể rồi tính
-        if (exp) {
-            document.getElementById("exp").value = exp;
-            document.getElementById("hsdMode").value = "date";
-            toggleHsdMode();
-            calc();
-            return;
-        }
-
-        // Nếu đọc được NSX + hạn dùng theo tháng/năm thì tự tính HSD
-        if (mfg && shelfLifeMonths) {
-            const calculatedExp = calcExpFromMfgAndMonths(mfg, shelfLifeMonths);
-
-            document.getElementById("exp").value = calculatedExp;
-            document.getElementById("hsdMode").value = "date";
-            toggleHsdMode();
-
-            calc();
-            return;
-        }
-
-        // Nếu chỉ đọc được NSX thì không gọi calc() để tránh lỗi/vòng lặp
-        if (mfg && !exp && !shelfLifeMonths) {
-            showAskHsdAfterAI(mfg, data.note || "");
-            return;
-        }
-
-        showAiReadError(data.note || "AI chưa đọc được NSX/HSD rõ ràng.");
-
-    } catch (err) {
-        document.getElementById("result").innerHTML =
-            `<div class="result-box danger">❌ Lỗi Trình đọc ảnh: ${err.message}</div>`;
-    }
-});
-
-function resizeImageToBase64(file, maxWidth = 1280, quality = 0.72) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            img.src = e.target.result;
-        };
-
-        img.onload = function () {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth) {
-                height = Math.round(height * maxWidth / width);
-                width = maxWidth;
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-
-            const ctx = canvas.getContext("2d");
-
-			// tăng độ rõ chữ trước khi gửi AI
-			ctx.filter = "grayscale(100%) contrast(180%) brightness(115%)";
-
-			ctx.drawImage(img, 0, 0, width, height);
-
-			// reset filter
-			ctx.filter = "none";
-
-			const base64 = canvas.toDataURL("image/jpeg", quality);
-
-            resolve(base64);
-        };
-
-        reader.onerror = reject;
-        img.onerror = reject;
-
-        reader.readAsDataURL(file);
-    });
-}
-
-function isSuspiciousDate(dmy) {
-    if (!dmy) return true;
-
-    const y = parseInt(dmy.split("/")[2]);
-
-    // App dùng kiểm date hàng hiện tại, năm quá cũ thì cảnh báo
-    if (y < 2020 || y > 2040) return true;
-
-    return false;
 }
 
 if ('serviceWorker' in navigator) {
